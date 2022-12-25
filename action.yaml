@@ -1,0 +1,39 @@
+name: "Kind Cluster with internal container registry"
+description: "Create a kind (Kubernetes IN Docker) cluster with an internal container registry"
+author: "The Helm authors"
+inputs:
+  kind_version:
+    description: 'The version of kind to use'
+    required: false
+    default: 'v0.17.0'
+  kubectl_version:
+    description: 'The version of kubectl to use'
+    required: false
+    default: 'v1.25.3'
+outputs: { }
+runs:
+  using: "composite"
+  steps:
+    - name: Install Helm
+      shell: bash
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Set up Registry Container
+      shell: bash
+      run: |
+        docker run -d --restart=always -p "127.0.0.1:5001:5000" --name kind-registry registry:2
+
+    - name: Create kind cluster
+      uses: helm/kind-action@v1.5.0
+      with:
+        version: ${{ kind_version }}
+        kubectl_version: ${{ kubectl_version }}
+        config: kind-config.yaml
+
+    - name: Set up Local Registry
+      shell: bash
+      run: |
+        # https://kind.sigs.k8s.io/docs/user/local-registry/
+        docker network connect kind kind-registry
+        kubectl apply -f configmap-registry.yaml
