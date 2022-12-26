@@ -1,6 +1,6 @@
 name: "Kind Cluster with internal container registry"
 description: "Create a kind (Kubernetes IN Docker) cluster with an internal container registry"
-author: "The Helm authors"
+author: "bakito"
 inputs:
   kind_version:
     description: 'The version of kind to use'
@@ -10,7 +10,21 @@ inputs:
     description: 'The version of kubectl to use'
     required: false
     default: 'v1.25.3'
-outputs: { }
+  ingress_enabled:
+    description: 'enable ingress for the cluster'
+    required: false
+    default: false
+  registry_image:
+    description: 'The registry docker image to be used'
+    required: false
+    default: 'registry:2'
+outputs:
+  ingress_class_name:
+    description: 'The name of the ingress class'
+    value: 'nginx'
+  registry:
+    description: 'The address of the docker registry'
+    value: 'localhost:5001'
 runs:
   using: "composite"
   steps:
@@ -28,7 +42,7 @@ runs:
     - name: Set up Registry Container
       shell: bash
       run: |
-        docker run -d --restart=always -p "127.0.0.1:5001:5000" --name kind-registry registry:2
+        docker run -d --restart=always -p "127.0.0.1:5001:5000" --name kind-registry ${{ inputs.registry_image }}
 
     - name: Create kind cluster
       uses: helm/kind-action@v1.5.0
@@ -43,3 +57,14 @@ runs:
         # https://kind.sigs.k8s.io/docs/user/local-registry/
         docker network connect kind kind-registry
         kubectl apply -f ${{ github.action_path }}/configmap-registry.yaml
+
+    - name: Set up Ingress
+      if: ${{ inputs.ingress_enabled == 'true' }}
+      shell: bash
+      run: |
+        # https://kind.sigs.k8s.io/docs/user/ingress/
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+        kubectl wait --namespace ingress-nginx \
+          --for=condition=ready pod \
+          --selector=app.kubernetes.io/component=controller \
+          --timeout=90s

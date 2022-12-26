@@ -1,10 +1,37 @@
-on: [push]
+on: [ push ]
 
 jobs:
-  hello_world_job:
+  default:
     runs-on: ubuntu-latest
-    name: Test
+    name: Run with default
     steps:
       - uses: actions/checkout@v3
-      - id: test
+      - id: kind
+        name: Install Kind with registry
         uses: bakito/kind-with-registry-action@main
+      - name: Print registry
+        run: |
+          echo Kind registry: ${{ steps.kind.outputs.registry }} >> $GITHUB_STEP_SUMMARY
+      - name: Test tools
+        run: |
+          jq --version
+          yq --version
+          helm version
+          kubectl version
+          kubectl get nodes
+
+  parametrized:
+    runs-on: ubuntu-latest
+    name: Run parameterized
+    steps:
+      - uses: actions/checkout@v3
+      - id: kind
+        name: Install Kind with registry
+        uses: bakito/kind-with-registry-action@main
+        with:
+          ingress_enabled: true
+          kind_version:    v0.16.0
+          kubectl_version: v1.24.0
+      - name: Print ingress class
+        run: |
+          echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
