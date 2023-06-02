@@ -11,7 +11,7 @@ Optionally ingress can be enabled.
     kind_version:    v0.16.0       // (optional) kind version to be used
     kubectl_version: v1.24.0       // (optional) kubectl version to be used
     ingress_enabled: true          // (optional) enable ingress-nginx
-    registry_image:   'registry:2' // (optional) The registry docker image to be used
+    registry_image:  'registry:2'  // (optional) The registry docker image to be used
 ```
 
 ## Outputs
