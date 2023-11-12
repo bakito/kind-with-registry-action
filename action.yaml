@@ -49,7 +49,6 @@ runs:
       with:
         version: ${{ inputs.kind_version }}
         kubectl_version: ${{ inputs.kubectl_version }}
-        node_image: ${{ inputs.kubectl_version }}
         config: ${{ github.action_path }}/kind-config.yaml
 
     - name: Set up Local Registry
