@@ -9,7 +9,11 @@ inputs:
   kubectl_version:
     description: 'The version of kubectl to use'
     required: false
-    default: 'v1.27.7'
+    default: 'v1.27.3'
+  node_image:
+    description: 'The version of node image to use'
+    required: false
+    default: 'v1.27.3'
   ingress_enabled:
     description: 'enable ingress for the cluster'
     required: false
@@ -49,6 +53,7 @@ runs:
       with:
         version: ${{ inputs.kind_version }}
         kubectl_version: ${{ inputs.kubectl_version }}
+        node_image: ${{ inputs.node_image }}
         config: ${{ github.action_path }}/kind-config.yaml
 
     - name: Set up Local Registry
