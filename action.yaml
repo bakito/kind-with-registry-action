@@ -13,7 +13,7 @@ inputs:
   node_image:
     description: 'The version of node image to use'
     required: false
-    default: 'v1.27.3'
+    default: 'kindest/node:v1.27.3'
   ingress_enabled:
     description: 'enable ingress for the cluster'
     required: false
