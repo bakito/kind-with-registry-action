@@ -30,8 +30,8 @@ jobs:
         uses: bakito/kind-with-registry-action@main
         with:
           ingress_enabled: true
-          kind_version:    v0.16.0
-          kubectl_version: v1.24.0
+          kind_version:    v0.23.0
+          kubectl_version: v1.30.0
       - name: Print ingress class
         run: |
           echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
