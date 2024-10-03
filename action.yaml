@@ -5,14 +5,17 @@ inputs:
   kind_version:
     description: 'The version of kind to use'
     required: false
+    # renovate: github-releases packageName=kubernetes-sigs/kind
     default: 'v0.23.0'
   kubectl_version:
     description: 'The version of kubectl to use'
     required: false
+    # renovate: k8s
     default: 'v1.30.1'
   node_image:
     description: 'The version of node image to use'
     required: false
+    # renovate: docker
     default: 'kindest/node:v1.30.0'
   ingress_enabled:
     description: 'enable ingress for the cluster'
@@ -21,6 +24,7 @@ inputs:
   registry_image:
     description: 'The registry docker image to be used'
     required: false
+    # renovate: docker
     default: 'registry:2'
 outputs:
   ingress_class_name:
