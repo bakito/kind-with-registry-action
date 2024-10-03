@@ -6,7 +6,7 @@ inputs:
     description: 'The version of kind to use'
     required: false
     # renovate: github-releases packageName=kubernetes-sigs/kind
-    default: 'v0.23.0'
+    default: 'v0.24.0'
   kubectl_version:
     description: 'The version of kubectl to use'
     required: false
