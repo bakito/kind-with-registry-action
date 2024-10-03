@@ -3,36 +3,13 @@
   "customManagers": [
     {
       "customType": "regex",
-      "datasourceTemplate": "docker",
-      "description": "Update docker images in action.yaml",
+      "description": "Update versions in action.yaml",
       "fileMatch": [
         "^action\\.yaml$"
       ],
       "matchStrings": [
-        "# renovate: docker\\s+default:\\s\\'(?<packageName>.+?):(?<currentValue>.+?)'\\s"
-      ]
-    },
-    {
-      "customType": "regex",
-      "datasourceTemplate":  "github-releases",
-      "description": "Update github-releases images in action.yaml",
-      "fileMatch": [
-        "^action\\.yaml$"
-      ],
-      "matchStrings": [
-        "# renovate: github-releases packageName=(?<packageName>.+?)\\s+default:\\s\\'(?<currentValue>.+?)'\\s"
-      ]
-    },
-    {
-      "customType": "regex",
-      "datasourceTemplate": "custom.k8s",
-      "depNameTemplate": "kubectl",
-      "description": "Update k8s images in action.yaml",
-      "fileMatch": [
-        "^action\\.yaml$"
-      ],
-      "matchStrings": [
-        "# renovate: k8s\\s+default:\\s\\'(?<currentValue>.+?)'\\s"
+        "# renovate: (?<datasource>.+?)\\s+default:\\s\\'(?<packageName>.+?):(?<currentValue>.+?)'\\s",
+        "# renovate: (?<datasource>.+?) (?<packageName>.+?)\\s+default:\\s\\'(?<currentValue>.+?)'\\s"
       ]
     }
   ],
