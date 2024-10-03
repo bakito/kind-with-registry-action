@@ -37,9 +37,7 @@ runs:
   using: "composite"
   steps:
     - name: Install Helm
-      shell: bash
-      run: |
-        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      uses: azure/setup-helm@v4.2.0
 
     - name: Install jq
       uses: dcarbone/install-jq-action@v2.1.0
