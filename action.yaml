@@ -16,11 +16,15 @@ inputs:
     description: 'The version of node image to use'
     required: false
     # renovate: docker
-    default: 'kindest/node:v1.31.0'
+    default: 'kindest/node:v1.31.1'
   ingress_enabled:
     description: 'enable ingress for the cluster'
     required: false
     default: false
+  ingress_version:
+    description: 'The ingress controller version (git tag)'
+    required: false
+    default: 4.11.3
   registry_image:
     description: 'The registry docker image to be used'
     required: false
@@ -70,7 +74,7 @@ runs:
       shell: bash
       run: |
         # https://kind.sigs.k8s.io/docs/user/ingress/
-        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/helm-chart-${{ inputs.ingress_version }}/deploy/static/provider/kind/deploy.yaml
         kubectl wait --namespace ingress-nginx \
           --for=condition=ready pod \
           --selector=app.kubernetes.io/component=controller \
