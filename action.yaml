@@ -44,7 +44,7 @@ runs:
       uses: azure/setup-helm@v4.2.0
 
     - name: Install jq
-      uses: dcarbone/install-jq-action@v2.1.0
+      uses: dcarbone/install-jq-action@v3.0.0
 
     - name: Install yq
       uses: dcarbone/install-yq-action@v1.2.0
