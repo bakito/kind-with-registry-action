@@ -48,7 +48,10 @@ runs:
 
     - name: Install yq
       uses: dcarbone/install-yq-action@v1.3.0
-
+      
+    - name: Install Chainsaw
+      uses: kyverno/action-install-chainsaw@v0.2.11
+      
     - name: Set up Registry Container
       shell: bash
       run: |
