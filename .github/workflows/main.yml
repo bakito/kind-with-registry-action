@@ -12,16 +12,21 @@ jobs:
       - uses: actions/checkout@v4
       - id: kind
         name: Install Kind with registry
-        uses: bakito/kind-with-registry-action@main
+        uses: ./
       - name: Print registry
         run: |
           echo Kind registry: ${{ steps.kind.outputs.registry }} >> $GITHUB_STEP_SUMMARY
       - name: Test tools
         run: |
+          echo jq
           jq --version
+          echo yq
           yq --version
+          echo helm
           helm version
-          chainsaw --version
+          echo chainsaw
+          chainsaw version
+          echo kubectl
           kubectl version
           kubectl get nodes
 
