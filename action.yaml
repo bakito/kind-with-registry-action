@@ -16,7 +16,7 @@ inputs:
     description: 'The version of node image to use'
     required: false
     # renovate: docker
-    default: 'kindest/node:v1.32.0'
+    default: 'kindest/node:v1.32.1'
   ingress_enabled:
     description: 'enable ingress for the cluster'
     required: false
