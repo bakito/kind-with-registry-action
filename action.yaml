@@ -29,7 +29,7 @@ inputs:
     description: 'The registry docker image to be used'
     required: false
     # renovate: docker
-    default: 'registry:2'
+    default: 'registry:3'
 outputs:
   ingress_class_name:
     description: 'The name of the ingress class'
