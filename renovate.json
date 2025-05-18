@@ -4,8 +4,8 @@
     {
       "customType": "regex",
       "description": "Update versions in action.yaml",
-      "fileMatch": [
-        "^action\\.yaml$"
+      "managerFilePatterns": [
+        "/^action\\.yaml$/"
       ],
       "matchStrings": [
         "# renovate: (?<datasource>.+?)\\s+default:\\s\\'(?<packageName>.+?):(?<currentValue>.+?)'\\s",
