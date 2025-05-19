@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
       - id: kind
         name: Install Kind with registry
-        uses: bakito/kind-with-registry-action@ingress-helm-chart
+        uses: bakito/kind-with-registry-action@main
         with:
           ingress_enabled: true
           ingress_version: 4.12.2
