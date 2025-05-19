@@ -79,6 +79,7 @@ runs:
       run: |
         wget --no-verbose -q https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/helm-chart-${{ inputs.ingress_version }}/hack/manifest-templates/provider/kind/values.yaml
         helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+        echo "Install ingress-nginx helm chart ${{ inputs.ingress_version }}"
         helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s \
           --create-namespace -n ingress-nginx \
           -f values.yaml > /dev/null
