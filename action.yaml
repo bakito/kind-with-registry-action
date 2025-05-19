@@ -11,7 +11,7 @@ inputs:
     description: 'The version of kubectl to use'
     required: false
     # renovate: custom.k8s kubectl
-    default: 'v1.31.0'
+    default: 'v1.33.1'
   node_image:
     description: 'The version of node image to use'
     required: false
@@ -24,7 +24,7 @@ inputs:
   ingress_version:
     description: 'The ingress controller version (git tag)'
     required: false
-    default: helm-chart-4.11.3
+    default: helm-chart-4.12.2
   registry_image:
     description: 'The registry docker image to be used'
     required: false

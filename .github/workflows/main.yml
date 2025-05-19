@@ -40,7 +40,7 @@ jobs:
         uses: bakito/kind-with-registry-action@main
         with:
           ingress_enabled: true
-          ingress_version: helm-chart-4.11.2
+          ingress_version: helm-chart-4.12.2
           kind_version:    v0.23.0
           kubectl_version: v1.30.0
       - name: Print ingress class
