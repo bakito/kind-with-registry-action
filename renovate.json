@@ -5,17 +5,18 @@
       "customType": "regex",
       "description": "Update versions in action.yaml",
       "managerFilePatterns": [
-        "/^action\\.yaml$/"
+        "/^action.yaml$/"
       ],
       "matchStrings": [
         "# renovate: (?<datasource>.+?)\\s+default:\\s\\'(?<packageName>.+?):(?<currentValue>.+?)'\\s",
-        "# renovate: (?<datasource>.+?) (?<packageName>.+?)\\s+default:\\s\\'(?<currentValue>.+?)'\\s"
+        "# renovate: (?<datasource>.+?) (?<packageName>.+?)\\s+default:\\s\\'(?<currentValue>.+?)'\\s",
+        "# renovate: (?<datasource>.+?) (?<packageName>.+?) (?<registryUrl>.+?)\\s+default:\\s*(?<currentValue>.+?)\\s"
       ]
     }
   ],
   "customDatasources": {
     "k8s": {
-      "defaultRegistryUrlTemplate": "https://storage.googleapis.com/kubernetes-release/release/stable.txt",
+      "defaultRegistryUrlTemplate": "https://dl.k8s.io/release/stable.txt",
       "format": "plain"
     }
   },
