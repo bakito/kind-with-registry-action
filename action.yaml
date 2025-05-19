@@ -83,3 +83,4 @@ runs:
         helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s \
           --create-namespace -n ingress-nginx \
           -f values.yaml > /dev/null
+        helm list -n ingress-nginx
