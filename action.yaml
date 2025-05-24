@@ -6,7 +6,7 @@ inputs:
     description: 'The version of kind to use'
     required: false
     # renovate: github-releases kubernetes-sigs/kind
-    default: 'v0.28.0'
+    default: 'v0.29.0'
   kubectl_version:
     description: 'The version of kubectl to use'
     required: false
@@ -82,5 +82,6 @@ runs:
         echo "Install ingress-nginx helm chart ${{ inputs.ingress_version }}"
         helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s \
           --create-namespace -n ingress-nginx \
-          -f values.yaml > /dev/null
+          -f values.yaml \
+          --set controller.progressDeadlineSeconds=600 > /dev/null
         helm list -n ingress-nginx
