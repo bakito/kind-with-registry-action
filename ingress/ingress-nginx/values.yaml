@@ -1,0 +1,32 @@
+# Kind - https://kind.sigs.k8s.io/docs/user/ingress/
+# Source: https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/helm-chart-4.12.2/hack/manifest-templates/provider/kind/values.yaml
+controller:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  hostPort:
+    enabled: true
+  terminationGracePeriodSeconds: 0
+  progressDeadlineSeconds: 600
+  service:
+    type: NodePort
+    nodePorts:
+      http: 30080
+      https: 30443
+  watchIngressWithoutClass: true
+
+  nodeSelector:
+    ingress-ready: "true"
+  tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Equal"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Equal"
+      effect: "NoSchedule"
+
+  publishService:
+    enabled: false
+  extraArgs:
+    publish-status-address: localhost

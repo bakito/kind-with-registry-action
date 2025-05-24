@@ -18,14 +18,23 @@ inputs:
     # renovate: docker
     default: 'kindest/node:v1.33.1'
   ingress_enabled:
-    description: 'enable ingress for the cluster'
+    description: 'enable ingress-nginx for the cluster'
     required: false
     default: false
   ingress_version:
-    description: 'The ingress controller version (git tag)'
+    description: 'The ingress-ninx controller version (git tag)'
     required: false
     # renovate: helm ingress-nginx https://kubernetes.github.io/ingress-nginx
     default: 4.12.2
+  kong_enabled:
+    description: 'enable kong ingress for the cluster'
+    required: false
+    default: false
+  kong_version:
+    description: 'The kong ingress controller version (git tag)'
+    required: false
+    # renovate: helm kong https://charts.konghq.com
+    default: 2.48.0
   registry_image:
     description: 'The registry docker image to be used'
     required: false
@@ -34,13 +43,20 @@ inputs:
 outputs:
   ingress_class_name:
     description: 'The name of the ingress class'
-    value: 'nginx'
+    value: ${{ steps.detect-ingress-class.outputs.ingress_class }}
   registry:
     description: 'The address of the docker registry'
     value: 'localhost:5001'
 runs:
   using: "composite"
   steps:
+    - name: Set up ingress-nginx Ingress Controller
+      if: ${{ inputs.ingress_enabled == 'true' && inputs.kong_enabled == 'true' }}
+      shell: bash
+      run: |
+        echo "::error::Conflicting ingress configurations detected - only one ingress can be enabled"
+        exit 1
+
     - name: Install Helm
       uses: azure/setup-helm@v4.3.0
 
@@ -73,15 +89,19 @@ runs:
         docker network connect kind kind-registry
         kubectl apply -f ${{ github.action_path }}/configmap-registry.yaml
 
-    - name: Set up Ingress
+    - name: Set up ingress-nginx Ingress Controller
       if: ${{ inputs.ingress_enabled == 'true' }}
       shell: bash
+      run: ./ingress/ingress-nginx/install.sh ${{ inputs.ingress_version }}
+
+    - name: Set up kong Ingress Controller
+      if: ${{ inputs.kong_enabled == 'true' }}
+      shell: bash
+      run: ./ingress/kong/install.sh ${{ inputs.kong_version }}
+
+    - name: Detect IngressClass
+      id: detect-ingress-class
+      shell: bash
       run: |
-        wget --no-verbose -q https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/helm-chart-${{ inputs.ingress_version }}/hack/manifest-templates/provider/kind/values.yaml
-        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-        echo "Install ingress-nginx helm chart ${{ inputs.ingress_version }}"
-        helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s \
-          --create-namespace -n ingress-nginx \
-          -f values.yaml \
-          --set controller.progressDeadlineSeconds=600 > /dev/null
-        helm list -n ingress-nginx
+        INGRESS_CLASS=$(kubectl get ingressclass -o jsonpath='{.items[*].metadata.name}')
+        echo "ingress_class=$INGRESS_CLASS" >> "$GITHUB_OUTPUT"

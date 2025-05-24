@@ -30,7 +30,7 @@ jobs:
           kubectl version
           kubectl get nodes
 
-  parametrized:
+  parametrized-:
     runs-on: ubuntu-latest
     name: Run parameterized
     steps:
@@ -39,10 +39,72 @@ jobs:
         name: Install Kind with registry
         uses: ./
         with:
-          ingress_enabled: true
-          ingress_version: 4.12.2
           kind_version:    v0.23.0
           kubectl_version: v1.30.0
+      - name: Test tools
+        run: |
+          echo jq
+          jq --version
+          echo yq
+          yq --version
+          echo helm
+          helm version
+          echo chainsaw
+          chainsaw version
+          echo kubectl
+          kubectl version
+          kubectl get nodes
+
+  ingress-nginx:
+    runs-on: ubuntu-latest
+    name: Install ingress-nginx
+    steps:
+      - uses: actions/checkout@v4
+      - id: kind
+        name: Install Kind with registry
+        uses: ./
+        with:
+          ingress_enabled: true
+
       - name: Print ingress class
         run: |
           echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
+
+      - name: Test
+        run: ./ingress/test/install.sh nginx
+
+  kong:
+    runs-on: ubuntu-latest
+    name: Install kong
+    steps:
+      - uses: actions/checkout@v4
+      - id: kind
+        name: Install Kind with registry
+        uses: ./
+        with:
+          kong_enabled: true
+
+      - name: Print ingress class
+        run: |
+          echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
+
+      - name: Test
+        run: ./ingress/test/install.sh kong
+  
+  ingress-conflict:
+    runs-on: ubuntu-latest
+    name: Test ingress conflict
+    steps:
+      - uses: actions/checkout@v4
+      - id: kind
+        name: Install Kind with registry
+        uses: ./
+        with:
+          ingress_enabled: true
+          kong_enabled: true
+        continue-on-error: true
+      - name: Verify failure
+        if: steps.kind.outcome != 'failure'
+        run: |
+          echo "Expected failure when both ingress types are enabled"
+          exit 1
