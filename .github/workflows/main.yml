@@ -30,7 +30,7 @@ jobs:
           kubectl version
           kubectl get nodes
 
-  parametrized-:
+  parametrized:
     runs-on: ubuntu-latest
     name: Run parameterized
     steps:
