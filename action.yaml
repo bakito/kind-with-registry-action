@@ -80,7 +80,7 @@ runs:
         version: ${{ inputs.kind_version }}
         kubectl_version: ${{ inputs.kubectl_version }}
         node_image: ${{ inputs.node_image }}
-        config: ${{ github.action_path }}/kind-config.yaml
+        config: ${{ github.action_path }}/${{ inputs.kong_enabled == 'true' && 'ingress/kong/kind-config.yaml' || inputs.ingress_enabled == 'true' && 'ingress/ingress-nginx/kind-config.yaml' || 'kind-config.yaml' }}
 
     - name: Set up Local Registry
       shell: bash
