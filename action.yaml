@@ -11,7 +11,7 @@ inputs:
     description: 'The version of kubectl to use'
     required: false
     # renovate: custom.k8s kubectl
-    default: 'v1.33.1'
+    default: 'v1.33.2'
   node_image:
     description: 'The version of node image to use'
     required: false
