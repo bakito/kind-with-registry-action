@@ -16,5 +16,9 @@ print_success() {
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}⚠️ $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}🚨 $1${NC}"
 }

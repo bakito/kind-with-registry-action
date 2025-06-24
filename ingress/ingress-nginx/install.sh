@@ -13,14 +13,17 @@ helm repo update
 print_success "ingress-nginx Helm repository added"
 
 print_step "Installing ingress-nginx with Helm..."
+
 helm install "ingress-nginx" "ingress-nginx/ingress-nginx" \
         --version "$INGRESS_NGINX_VERSION" \
-        --atomic \
-        --timeout=600s \
         --create-namespace \
         -n "$NAMESPACE" \
         -f "$(dirname "$0")/values.yaml" > /dev/null
 print_success "ingress-nginx installed successfully"
+
+print_step "Checking ingress-nginx pods status..."
+kubectl wait pods -n "$NAMESPACE" -l bakito.github.com/kind-with-registry-action=ingress-nginx --for condition=Ready --timeout=90s
+print_success "ingress-nginx pods are running"
 
 print_step "Print Helm Info"
 echo "Installation completed. Current helm releases in $NAMESPACE:"

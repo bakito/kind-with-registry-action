@@ -22,19 +22,18 @@ inputs:
     required: false
     default: false
   ingress_version:
-    description: 'The ingress-ninx controller version (git tag)'
+    description: 'The ingress-nginx controller version (git tag)'
     required: false
     # renovate: helm ingress-nginx https://kubernetes.github.io/ingress-nginx
     default: 4.12.3
-  kong_enabled:
-    description: 'enable kong ingress for the cluster'
+  cilium_enabled:
+    description: 'enable cilium ingress for the cluster'
     required: false
     default: false
-  kong_version:
-    description: 'The kong ingress controller version (git tag)'
+  cilium_version:
+    description: 'The cilium ingress controller version (git tag)'
     required: false
-    # renovate: helm kong https://charts.konghq.com
-    default: 2.48.0
+    default: 1.17.5
   registry_image:
     description: 'The registry docker image to be used'
     required: false
@@ -50,8 +49,8 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Set up ingress-nginx Ingress Controller
-      if: ${{ inputs.ingress_enabled == 'true' && inputs.kong_enabled == 'true' }}
+    - name: Check Config
+      if: ${{ inputs.ingress_enabled == 'true' && inputs.cilium_enabled == 'true' }}
       shell: bash
       run: |
         echo "::error::Conflicting ingress configurations detected - only one ingress can be enabled"
@@ -59,16 +58,18 @@ runs:
 
     - name: Install Helm
       uses: azure/setup-helm@v4.3.0
+      with:
+        version: 'latest'
 
     - name: Install jq
       uses: dcarbone/install-jq-action@v3.2.0
 
     - name: Install yq
       uses: dcarbone/install-yq-action@v1.3.1
-      
+
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.12
-      
+
     - name: Set up Registry Container
       shell: bash
       run: |
@@ -80,7 +81,7 @@ runs:
         version: ${{ inputs.kind_version }}
         kubectl_version: ${{ inputs.kubectl_version }}
         node_image: ${{ inputs.node_image }}
-        config: ${{ github.action_path }}/${{ inputs.kong_enabled == 'true' && 'ingress/kong/kind-config.yaml' || inputs.ingress_enabled == 'true' && 'ingress/ingress-nginx/kind-config.yaml' || 'kind-config.yaml' }}
+        config: ${{ github.action_path }}/${{ inputs.cilium_enabled == 'true' && 'ingress/cilium/kind-config.yaml' || inputs.ingress_enabled == 'true' && 'ingress/ingress-nginx/kind-config.yaml' || 'kind-config.yaml' }}
 
     - name: Set up Local Registry
       shell: bash
@@ -94,10 +95,16 @@ runs:
       shell: bash
       run: ./ingress/ingress-nginx/install.sh ${{ inputs.ingress_version }}
 
-    - name: Set up kong Ingress Controller
-      if: ${{ inputs.kong_enabled == 'true' }}
+    - name: Install Cilium CLI
+      uses: cilium/cilium-cli@v0.18.4
+      if: ${{ inputs.cilium_enabled == 'true' }}
+      with:
+        release-version: v0.18.4
+
+    - name: Set up cilium Ingress Controller
+      if: ${{ inputs.cilium_enabled == 'true' }}
       shell: bash
-      run: ./ingress/kong/install.sh ${{ inputs.kong_version }}
+      run: ./ingress/cilium/install.sh ${{ inputs.cilium_version }}
 
     - name: Detect IngressClass
       id: detect-ingress-class

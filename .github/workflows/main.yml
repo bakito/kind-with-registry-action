@@ -73,23 +73,23 @@ jobs:
       - name: Test
         run: ./ingress/test/install.sh nginx
 
-  kong:
+  cilium:
     runs-on: ubuntu-latest
-    name: Install kong
+    name: Install cilium
     steps:
       - uses: actions/checkout@v4
       - id: kind
         name: Install Kind with registry
         uses: ./
         with:
-          kong_enabled: true
+          cilium_enabled: true
 
       - name: Print ingress class
         run: |
           echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
 
       - name: Test
-        run: ./ingress/test/install.sh kong
+        run: ./ingress/test/install.sh cilium
   
   ingress-conflict:
     runs-on: ubuntu-latest
@@ -101,7 +101,7 @@ jobs:
         uses: ./
         with:
           ingress_enabled: true
-          kong_enabled: true
+          cilium_enabled: true
         continue-on-error: true
       - name: Verify failure
         if: steps.kind.outcome != 'failure'

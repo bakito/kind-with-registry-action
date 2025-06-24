@@ -27,3 +27,6 @@ controller:
     enabled: false
   extraArgs:
     publish-status-address: localhost
+
+  podLabels:
+    bakito.github.com/kind-with-registry-action: 'ingress-nginx'
