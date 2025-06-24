@@ -18,14 +18,22 @@ inputs:
     # renovate: docker
     default: 'kindest/node:v1.33.1'
   ingress_enabled:
-    description: 'enable ingress for the cluster'
+    description: 'enable ingress-nginx for the cluster'
     required: false
     default: false
   ingress_version:
-    description: 'The ingress controller version (git tag)'
+    description: 'The ingress-nginx controller version (git tag)'
     required: false
     # renovate: helm ingress-nginx https://kubernetes.github.io/ingress-nginx
     default: 4.12.3
+  cilium_enabled:
+    description: 'enable cilium ingress for the cluster'
+    required: false
+    default: false
+  cilium_version:
+    description: 'The cilium ingress controller version (git tag)'
+    required: false
+    default: 1.17.5
   registry_image:
     description: 'The registry docker image to be used'
     required: false
@@ -34,25 +42,34 @@ inputs:
 outputs:
   ingress_class_name:
     description: 'The name of the ingress class'
-    value: 'nginx'
+    value: ${{ steps.detect-ingress-class.outputs.ingress_class }}
   registry:
     description: 'The address of the docker registry'
     value: 'localhost:5001'
 runs:
   using: "composite"
   steps:
+    - name: Check Config
+      if: ${{ inputs.ingress_enabled == 'true' && inputs.cilium_enabled == 'true' }}
+      shell: bash
+      run: |
+        echo "::error::Conflicting ingress configurations detected - only one ingress can be enabled"
+        exit 1
+
     - name: Install Helm
       uses: azure/setup-helm@v4.3.0
+      with:
+        version: 'latest'
 
     - name: Install jq
       uses: dcarbone/install-jq-action@v3.2.0
 
     - name: Install yq
       uses: dcarbone/install-yq-action@v1.3.1
-      
+
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.12
-      
+
     - name: Set up Registry Container
       shell: bash
       run: |
@@ -64,7 +81,7 @@ runs:
         version: ${{ inputs.kind_version }}
         kubectl_version: ${{ inputs.kubectl_version }}
         node_image: ${{ inputs.node_image }}
-        config: ${{ github.action_path }}/kind-config.yaml
+        config: ${{ github.action_path }}/${{ inputs.cilium_enabled == 'true' && 'ingress/cilium/kind-config.yaml' || inputs.ingress_enabled == 'true' && 'ingress/ingress-nginx/kind-config.yaml' || 'kind-config.yaml' }}
 
     - name: Set up Local Registry
       shell: bash
@@ -73,15 +90,25 @@ runs:
         docker network connect kind kind-registry
         kubectl apply -f ${{ github.action_path }}/configmap-registry.yaml
 
-    - name: Set up Ingress
+    - name: Set up ingress-nginx Ingress Controller
       if: ${{ inputs.ingress_enabled == 'true' }}
       shell: bash
+      run: ./ingress/ingress-nginx/install.sh ${{ inputs.ingress_version }}
+
+    - name: Install Cilium CLI
+      uses: cilium/cilium-cli@v0.18.4
+      if: ${{ inputs.cilium_enabled == 'true' }}
+      with:
+        release-version: v0.18.4
+
+    - name: Set up cilium Ingress Controller
+      if: ${{ inputs.cilium_enabled == 'true' }}
+      shell: bash
+      run: ./ingress/cilium/install.sh ${{ inputs.cilium_version }}
+
+    - name: Detect IngressClass
+      id: detect-ingress-class
+      shell: bash
       run: |
-        wget --no-verbose -q https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/helm-chart-${{ inputs.ingress_version }}/hack/manifest-templates/provider/kind/values.yaml
-        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-        echo "Install ingress-nginx helm chart ${{ inputs.ingress_version }}"
-        helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s \
-          --create-namespace -n ingress-nginx \
-          -f values.yaml \
-          --set controller.progressDeadlineSeconds=600 > /dev/null
-        helm list -n ingress-nginx
+        INGRESS_CLASS=$(kubectl get ingressclass -o jsonpath='{.items[*].metadata.name}')
+        echo "ingress_class=$INGRESS_CLASS" >> "$GITHUB_OUTPUT"
