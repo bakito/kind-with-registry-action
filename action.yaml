@@ -25,12 +25,16 @@ inputs:
     description: 'The ingress controller version (git tag)'
     required: false
     # renovate: helm ingress-nginx https://kubernetes.github.io/ingress-nginx
-    default: 4.13.2
+    default: 4.12.2
   registry_image:
     description: 'The registry docker image to be used'
     required: false
     # renovate: docker
     default: 'registry:3'
+  debug:
+    description: enable debug output for helm chart installation
+    required: false
+    default: false
 outputs:
   ingress_class_name:
     description: 'The name of the ingress class'
@@ -65,13 +69,14 @@ runs:
         kubectl_version: ${{ inputs.kubectl_version }}
         node_image: ${{ inputs.node_image }}
         config: ${{ github.action_path }}/kind-config.yaml
+        verbosity: ${{ inputs.debug == 'true' && '9' || '0' }}
 
     - name: Set up Local Registry
       shell: bash
       run: |
         # https://kind.sigs.k8s.io/docs/user/local-registry/
         docker network connect kind kind-registry
-        kubectl apply -f ${{ github.action_path }}/configmap-registry.yaml
+        kubectl apply -f ${{ github.action_path }}/configmap-registry.yaml ${{ inputs.debug == 'true' && '-v 9' || '' }}
 
     - name: Set up Ingress
       if: ${{ inputs.ingress_enabled == 'true' }}
@@ -80,7 +85,7 @@ runs:
         wget --no-verbose -q https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/helm-chart-${{ inputs.ingress_version }}/hack/manifest-templates/provider/kind/values.yaml
         helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
         echo "Install ingress-nginx helm chart ${{ inputs.ingress_version }}"
-        helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s \
+        helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s ${{ inputs.debug == 'true' && '--debug' || '' }} \
           --create-namespace -n ingress-nginx \
           -f values.yaml \
           --set controller.progressDeadlineSeconds=600 > /dev/null
