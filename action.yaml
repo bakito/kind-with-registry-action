@@ -25,7 +25,7 @@ inputs:
     description: 'The ingress controller version (git tag)'
     required: false
     # renovate: helm ingress-nginx https://kubernetes.github.io/ingress-nginx
-    default: 4.12.2
+    default: 4.13.2
   registry_image:
     description: 'The registry docker image to be used'
     required: false
@@ -53,10 +53,10 @@ runs:
 
     - name: Install yq
       uses: dcarbone/install-yq-action@v1.3.1
-      
+
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.13
-      
+
     - name: Set up Registry Container
       shell: bash
       run: |
@@ -82,11 +82,10 @@ runs:
       if: ${{ inputs.ingress_enabled == 'true' }}
       shell: bash
       run: |
-        wget --no-verbose -q https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/helm-chart-${{ inputs.ingress_version }}/hack/manifest-templates/provider/kind/values.yaml
         helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
         echo "Install ingress-nginx helm chart ${{ inputs.ingress_version }}"
         helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s ${{ inputs.debug == 'true' && '--debug' || '' }} \
           --create-namespace -n ingress-nginx \
-          -f values.yaml \
+          -f ${{ github.action_path }}/ingress-nginx-values.yaml \
           --set controller.progressDeadlineSeconds=600 ${{ inputs.debug == 'true' && '' || '> /dev/null' }}
         helm list -n ingress-nginx
