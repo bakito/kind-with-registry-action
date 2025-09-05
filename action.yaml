@@ -88,5 +88,5 @@ runs:
         helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --atomic --timeout=90s ${{ inputs.debug == 'true' && '--debug' || '' }} \
           --create-namespace -n ingress-nginx \
           -f values.yaml \
-          --set controller.progressDeadlineSeconds=600 > /dev/null
+          --set controller.progressDeadlineSeconds=600 ${{ inputs.debug == 'true' && '' || '> /dev/null' }}
         helm list -n ingress-nginx
