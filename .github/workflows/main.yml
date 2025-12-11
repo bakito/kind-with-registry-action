@@ -41,8 +41,8 @@ jobs:
         with:
           debug: true
           ingress_enabled: true
-          node_image: kindest/node:v1.32.8
-          kubectl_version: v1.32.8
+          node_image: kindest/node:v1.33.4
+          kubectl_version: v1.33.4
       - name: Print ingress class
         run: |
           echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
