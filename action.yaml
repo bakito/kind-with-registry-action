@@ -71,13 +71,6 @@ runs:
         config: ${{ github.action_path }}/kind-config.yaml
         verbosity: ${{ inputs.debug == 'true' && '9' || '0' }}
 
-    - name: Set up Local Registry
-      shell: bash
-      run: |
-        # https://kind.sigs.k8s.io/docs/user/local-registry/
-        docker network connect kind kind-registry
-        kubectl apply -f ${{ github.action_path }}/configmap-registry.yaml ${{ inputs.debug == 'true' && '-v 9' || '' }}
-
     - name: Set up Ingress
       if: ${{ inputs.ingress_enabled == 'true' }}
       shell: bash
