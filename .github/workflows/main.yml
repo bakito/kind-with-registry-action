@@ -1,8 +1,8 @@
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   default:
@@ -37,8 +37,7 @@ jobs:
       fail-fast: false
       matrix:
         # https://hub.docker.com/r/kindest/node/tags
-        k8s_version: [ "v1.33.7", "v1.34.3", "v1.35.1"]
-        ingress: [ "true", "false" ]
+        k8s_version: ["v1.33.7", "v1.34.3", "v1.35.1"]
     steps:
       - uses: actions/checkout@v4
       - id: kind
@@ -46,7 +45,6 @@ jobs:
         uses: ./
         with:
           debug: true
-          ingress_enabled: ${{ matrix.ingress }}
           node_image: kindest/node:${{ matrix.k8s_version }}
           kubectl_version: ${{ matrix.k8s_version }}
       - name: Print ingress class

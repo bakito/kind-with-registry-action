@@ -21,23 +21,10 @@ inputs:
     required: false
     # renovate: docker
     default: 'kindest/node:v1.35.1'
-  ingress_enabled:
-    description: 'enable ingress for the cluster'
-    required: false
-    default: false
-  ingress_version:
-    description: 'The ingress controller version (git tag)'
-    required: false
-    # renovate: helm ingress-nginx https://kubernetes.github.io/ingress-nginx
-    default: 4.14.3
   debug:
     description: enable debug output for helm chart installation
     required: false
     default: false
-outputs:
-  ingress_class_name:
-    description: 'The name of the ingress class'
-    value: 'nginx'
 runs:
   using: "composite"
   steps:
@@ -62,15 +49,3 @@ runs:
         node_image: ${{ inputs.node_image }}
         config: ${{ github.action_path }}/kind-config.yaml
         verbosity: ${{ inputs.debug == 'true' && '9' || '0' }}
-
-    - name: Set up Ingress
-      if: ${{ inputs.ingress_enabled == 'true' }}
-      shell: bash
-      run: |
-        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-        echo "Install ingress-nginx helm chart ${{ inputs.ingress_version }}"
-        helm install ingress-nginx ingress-nginx/ingress-nginx --version ${{ inputs.ingress_version }} --wait=watcher --timeout=90s ${{ inputs.debug == 'true' && '--debug' || '' }} \
-          --create-namespace -n ingress-nginx \
-          -f ${{ github.action_path }}/ingress-nginx-values.yaml \
-          --set controller.progressDeadlineSeconds=600 ${{ inputs.debug == 'true' && '' || '> /dev/null' }}
-        helm list -n ingress-nginx
