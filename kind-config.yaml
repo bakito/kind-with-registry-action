@@ -23,7 +23,3 @@ nodes:
       - containerPort: 443
         hostPort: 443
         protocol: TCP
-containerdConfigPatches:
-  - |-
-    [plugins."io.containerd.cri.v1.images".registry.mirrors."localhost:5001"]
-      endpoint = ["http://kind-registry:5000"]
