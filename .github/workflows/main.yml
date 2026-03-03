@@ -33,6 +33,11 @@ jobs:
   parametrized:
     runs-on: ubuntu-latest
     name: Run parameterized
+    strategy:
+      fail-fast: false
+      matrix:
+        # https://hub.docker.com/r/kindest/node/tags
+        k8s_version: [ "v1.33.7", "v1.34.3", "v1.35.1"]
     steps:
       - uses: actions/checkout@v4
       - id: kind
@@ -41,8 +46,8 @@ jobs:
         with:
           debug: true
           ingress_enabled: true
-          node_image: kindest/node:v1.34.3
-          kubectl_version: v1.34.3
+          node_image: kindest/node:${{ matrix.k8s_version }}
+          kubectl_version: ${{ matrix.k8s_version }}
       - name: Print ingress class
         run: |
           echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
