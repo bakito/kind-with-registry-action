@@ -11,8 +11,6 @@ controller:
     type: NodePort
   watchIngressWithoutClass: true
 
-  nodeSelector:
-    kubernetes.io/os: linux
   tolerations:
     - key: "node-role.kubernetes.io/master"
       operator: "Equal"
