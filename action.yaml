@@ -1,5 +1,5 @@
-name: "Kind Cluster with internal container registry"
-description: "Create a kind (Kubernetes IN Docker) cluster with an internal container registry"
+name: "Kind Cluster"
+description: "Create a kind (Kubernetes IN Docker) cluster"
 author: "bakito"
 inputs:
   kind_version:
@@ -26,11 +26,6 @@ inputs:
     required: false
     # renovate: helm ingress-nginx https://kubernetes.github.io/ingress-nginx
     default: 4.14.3
-  registry_image:
-    description: 'The registry docker image to be used'
-    required: false
-    # renovate: docker
-    default: 'registry:3'
   debug:
     description: enable debug output for helm chart installation
     required: false
@@ -39,9 +34,6 @@ outputs:
   ingress_class_name:
     description: 'The name of the ingress class'
     value: 'nginx'
-  registry:
-    description: 'The address of the docker registry'
-    value: 'localhost:5001'
 runs:
   using: "composite"
   steps:
@@ -56,11 +48,6 @@ runs:
 
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.14
-
-    - name: Set up Registry Container
-      shell: bash
-      run: |
-        docker run -d --restart=always -p "127.0.0.1:5001:5000" --name kind-registry ${{ inputs.registry_image }}
 
     - name: Create kind cluster
       uses: helm/kind-action@v1.14.0
