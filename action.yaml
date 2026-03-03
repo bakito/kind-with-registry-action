@@ -7,6 +7,10 @@ inputs:
     required: false
     # renovate: github-releases kubernetes-sigs/kind
     default: 'v0.31.0'
+  kind_cluster_name:
+    description: 'The name of kind cluster'
+    required: false
+    default: 'chart-testing'
   kubectl_version:
     description: 'The version of kubectl to use'
     required: false
@@ -53,6 +57,7 @@ runs:
       uses: helm/kind-action@v1.14.0
       with:
         version: ${{ inputs.kind_version }}
+        cluster_name: ${{ inputs.kind_cluster_name }}
         kubectl_version: ${{ inputs.kubectl_version }}
         node_image: ${{ inputs.node_image }}
         config: ${{ github.action_path }}/kind-config.yaml
