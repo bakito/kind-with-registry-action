@@ -5,9 +5,17 @@ nodes:
     kubeadmConfigPatches:
       - |
         kind: InitConfiguration
+        apiVersion: kubeadm.k8s.io/v1beta4
         nodeRegistration:
           kubeletExtraArgs:
-            node-labels: "ingress-ready=true"
+            - name: "node-labels"
+              value: "ingress-ready=true"
+      - |
+        kind: ClusterConfiguration
+        apiVersion: kubeadm.k8s.io/v1beta4
+      - |
+        kind: JoinConfiguration
+        apiVersion: kubeadm.k8s.io/v1beta4
     extraPortMappings:
       - containerPort: 80
         hostPort: 80
@@ -17,5 +25,5 @@ nodes:
         protocol: TCP
 containerdConfigPatches:
   - |-
-    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:5001"]
+    [plugins."io.containerd.cri.v1.images".registry.mirrors."localhost:5001"]
       endpoint = ["http://kind-registry:5000"]
