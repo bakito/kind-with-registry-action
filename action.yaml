@@ -25,6 +25,14 @@ inputs:
     description: enable debug output for helm chart installation
     required: false
     default: false
+  docker_image_name:
+    description: Name of the docker image to import to kind
+    required: false
+    default: ""
+  docker_image_file:
+    description: Name of the docker image file (tar) to import to kind
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -49,3 +57,20 @@ runs:
         node_image: ${{ inputs.node_image }}
         config: ${{ github.action_path }}/kind-config.yaml
         verbosity: ${{ inputs.debug == 'true' && '9' || '0' }}
+
+    - name: Import docker image
+      if: ${{ inputs.docker_image_name != '' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        # Extract input variables
+        IMAGE_FILE="${{ inputs.docker_image_file }}"
+        IMAGE_NAME="${{ inputs.docker_image_name }}"
+        CLUSTER_NAME="${{ inputs.kind_cluster_name }}"
+
+        # Import image from file if specified
+        if [[ -n "${IMAGE_FILE}" ]]; then
+          echo "📥 Importing docker image from file: ${IMAGE_FILE}"
+          docker load -i "${IMAGE_FILE}"
+        fi
