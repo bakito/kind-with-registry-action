@@ -37,7 +37,13 @@ jobs:
       fail-fast: false
       matrix:
         # https://hub.docker.com/r/kindest/node/tags
-        k8s_version: ["v1.33.7", "v1.34.3", "v1.35.1"]
+        k8s_version:
+          # renovate: kindest/node allowedVersions=/^v1\.33\./
+          - "v1.33.7"
+          # renovate: kindest/node allowedVersions=/^v1\.34\./
+          - "v1.34.3"
+          # renovate: kindest/node allowedVersions=/^v1\.35\./
+          - "v1.35.1"
     steps:
       - uses: actions/checkout@v4
       - name: Build test image
