@@ -57,3 +57,12 @@ runs:
         node_image: ${{ inputs.node_image }}
         config: ${{ github.action_path }}/kind-config.yaml
         verbosity: ${{ inputs.debug == 'true' && '9' || '0' }}
+
+    - name: Import docker image
+      if: ${{ inputs.docker_image_name != '' }}
+      shell: bash
+      run: |
+        if [["${{ inputs.docker_image_file }}" != ""]]; then
+          docker load -i ${{ inputs.docker_image_file }}
+        fi
+        kind load docker-image ${{ inputs.docker_image_name }} --name ${{ inputs.kind_cluster_name }}
