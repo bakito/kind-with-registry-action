@@ -40,6 +40,10 @@ jobs:
         k8s_version: ["v1.33.7", "v1.34.3", "v1.35.1"]
     steps:
       - uses: actions/checkout@v4
+      - name: Build test image
+        run: |
+          docker build -t test-image:1.0.0 -f .github/test/Dockerfile .
+          docker save test-image:1.0.0 > test-image.tar
       - id: kind
         name: Install Kind with registry
         uses: ./
@@ -47,6 +51,8 @@ jobs:
           debug: true
           node_image: kindest/node:${{ matrix.k8s_version }}
           kubectl_version: ${{ matrix.k8s_version }}
+          docker_image_name: 'test-image:1.0.0'
+          docker_image_file: 'test-image.tar'
       - name: Print ingress class
         run: |
           echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY

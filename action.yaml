@@ -62,7 +62,15 @@ runs:
       if: ${{ inputs.docker_image_name != '' }}
       shell: bash
       run: |
-        if [["${{ inputs.docker_image_file }}" != ""]]; then
-          docker load -i ${{ inputs.docker_image_file }}
+        set -euo pipefail
+
+        # Extract input variables
+        IMAGE_FILE="${{ inputs.docker_image_file }}"
+        IMAGE_NAME="${{ inputs.docker_image_name }}"
+        CLUSTER_NAME="${{ inputs.kind_cluster_name }}"
+
+        # Import image from file if specified
+        if [[ -n "${IMAGE_FILE}" ]]; then
+          echo "📥 Importing docker image from file: ${IMAGE_FILE}"
+          docker load -i "${IMAGE_FILE}"
         fi
-        kind load docker-image ${{ inputs.docker_image_name }} --name ${{ inputs.kind_cluster_name }}
