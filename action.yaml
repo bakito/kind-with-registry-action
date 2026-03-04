@@ -33,7 +33,7 @@ inputs:
     description: Name of the docker image file (tar) to import to kind
     required: false
     default: ""
-  extra_port_mappings:
+  port_mappings:
     description: |
       Optional kind node port mappings to set as nodes[0].extraPortMappings.
       Must be a YAML list (multi-line), e.g.
@@ -66,21 +66,26 @@ runs:
     - name: Prepare kind config
       shell: bash
       env:
-        EXTRA_PORT_MAPPINGS: ${{ inputs.extra_port_mappings }}
+        port_mappings: ${{ inputs.port_mappings }}
       run: |
         set -euo pipefail
-        
+
         BASE_CONFIG="${{ github.action_path }}/kind-config.yaml"
         OUT_CONFIG="${RUNNER_TEMP}/kind-config.yaml"
-        
+
         cp "${BASE_CONFIG}" "${OUT_CONFIG}"
-        
+
         # Only apply if there's something other than whitespace
-        if [[ -n "${EXTRA_PORT_MAPPINGS//[[:space:]]/}" ]]; then
+        if [[ -n "${port_mappings//[[:space:]]/}" ]]; then
           echo "Setting nodes[0].extraPortMappings from input..."
-          yq -i '.nodes[0].extraPortMappings = (strenv(EXTRA_PORT_MAPPINGS) | from_yaml)' "${OUT_CONFIG}"
+          yq -i '.nodes[0].extraPortMappings = (strenv(port_mappings) | from_yaml)' "${OUT_CONFIG}"
+
+          echo "extraPortMappings written to kind config:"
+          yq '.nodes[0].extraPortMappings' "${OUT_CONFIG}"
+        else
+          echo "No port_mappings provided."
         fi
-        
+
         echo "KIND_CONFIG=${OUT_CONFIG}" >> "${GITHUB_ENV}"
     - name: Create kind cluster
       uses: helm/kind-action@v1.14.0

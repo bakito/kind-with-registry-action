@@ -53,6 +53,10 @@ jobs:
           kubectl_version: ${{ matrix.k8s_version }}
           docker_image_name: 'test-image:1.0.0'
           docker_image_file: 'test-image.tar'
+          port_mappings: |
+              - containerPort: 30080
+                hostPort: 80
+                protocol: TCP
       - name: Print ingress class
         run: |
           echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
