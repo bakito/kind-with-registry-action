@@ -25,6 +25,14 @@ inputs:
     description: enable debug output for helm chart installation
     required: false
     default: false
+  docker_image_name:
+    description: Name of the docker image to import to kind
+    required: false
+    default: ""
+  docker_image_file:
+    description: Name of the docker image file (tar) to import to kind
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
