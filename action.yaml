@@ -33,6 +33,21 @@ inputs:
     description: Name of the docker image file (tar) to import to kind
     required: false
     default: ""
+  extra_port_mappings:
+    description: |
+      Optional kind node port mappings to set as nodes[0].extraPortMappings.
+      Must be a YAML list (multi-line), e.g.
+        - containerPort: 30080
+          hostPort: 80
+          protocol: TCP
+    required: false
+    default: |
+      - containerPort: 30080
+        hostPort: 80
+        protocol: TCP
+      - containerPort: 30443
+        hostPort: 443
+        protocol: TCP
 runs:
   using: "composite"
   steps:
@@ -48,6 +63,25 @@ runs:
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.14
 
+    - name: Prepare kind config
+      shell: bash
+      env:
+        EXTRA_PORT_MAPPINGS: ${{ inputs.extra_port_mappings }}
+      run: |
+        set -euo pipefail
+        
+        BASE_CONFIG="${{ github.action_path }}/kind-config.yaml"
+        OUT_CONFIG="${RUNNER_TEMP}/kind-config.yaml"
+        
+        cp "${BASE_CONFIG}" "${OUT_CONFIG}"
+        
+        # Only apply if there's something other than whitespace
+        if [[ -n "${EXTRA_PORT_MAPPINGS//[[:space:]]/}" ]]; then
+          echo "Setting nodes[0].extraPortMappings from input..."
+          yq -i '.nodes[0].extraPortMappings = (strenv(EXTRA_PORT_MAPPINGS) | from_yaml)' "${OUT_CONFIG}"
+        fi
+        
+        echo "KIND_CONFIG=${OUT_CONFIG}" >> "${GITHUB_ENV}"
     - name: Create kind cluster
       uses: helm/kind-action@v1.14.0
       with:
@@ -55,7 +89,7 @@ runs:
         cluster_name: ${{ inputs.kind_cluster_name }}
         kubectl_version: ${{ inputs.kubectl_version }}
         node_image: ${{ inputs.node_image }}
-        config: ${{ github.action_path }}/kind-config.yaml
+        config: ${{ env.KIND_CONFIG }}
         verbosity: ${{ inputs.debug == 'true' && '9' || '0' }}
 
     - name: Import docker image
