@@ -113,3 +113,5 @@ runs:
           echo "📥 Importing docker image from file: ${IMAGE_FILE}"
           docker load -i "${IMAGE_FILE}"
         fi
+        echo "🖼️ Loading docker image ${IMAGE_NAME} into kind cluster"
+        kind load docker-image "${IMAGE_NAME}" --name "${CLUSTER_NAME}"
