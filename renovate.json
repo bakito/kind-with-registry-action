@@ -16,7 +16,9 @@
     {
       "customType": "regex",
       "description": "Update k8s versions in GitHub workflow matrix",
-      "fileMatch": ["^\\.github/workflows/.*\\.yml$"],
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.*\\.yml$/"
+      ],
       "matchStrings": [
         "# renovate: (?<depName>\\S+)(?: allowedVersions=(?<allowedVersions>\\S+))?\\s+- \"(?<currentValue>.*?)\""
       ],
@@ -32,8 +34,12 @@
   "packageRules": [
     {
       "description": "Group all kindest/node updates together",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["kindest/node"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "kindest/node"
+      ],
       "groupName": "kubernetes versions",
       "separateMinorPatch": false,
       "automerge": false
