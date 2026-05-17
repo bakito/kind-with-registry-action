@@ -52,16 +52,16 @@ runs:
   using: "composite"
   steps:
     - name: Install Helm
-      uses: azure/setup-helm@v5.0.0
+      uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
 
     - name: Install jq
-      uses: dcarbone/install-jq-action@v3.2.0
+      uses: dcarbone/install-jq-action@b7ef57d46ece78760b4019dbc4080a1ba2a40b45 # v3.2.0
 
     - name: Install yq
-      uses: dcarbone/install-yq-action@v1.3.1
+      uses: dcarbone/install-yq-action@4075b4dca348d74bd83f2bf82d30f25d7c54539b # v1.3.1
 
     - name: Install Chainsaw
-      uses: kyverno/action-install-chainsaw@v0.2.15
+      uses: kyverno/action-install-chainsaw@1223ef75bedeb59c4e7b5455463d4316e76dff01 # v0.2.15
 
     - name: Prepare kind config
       shell: bash
@@ -88,7 +88,7 @@ runs:
 
         echo "KIND_CONFIG=${OUT_CONFIG}" >> "${GITHUB_ENV}"
     - name: Create kind cluster
-      uses: helm/kind-action@v1.14.0
+      uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
       with:
         version: ${{ inputs.kind_version }}
         cluster_name: ${{ inputs.kind_cluster_name }}
