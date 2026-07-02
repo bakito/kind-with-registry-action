@@ -57,6 +57,3 @@ jobs:
               - containerPort: 30080
                 hostPort: 80
                 protocol: TCP
-      - name: Print ingress class
-        run: |
-          echo Ingress class name: ${{ steps.kind.outputs.ingress_class_name }} >> $GITHUB_STEP_SUMMARY
