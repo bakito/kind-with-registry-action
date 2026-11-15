@@ -20,5 +20,7 @@
       "format": "plain"
     }
   },
-  "dependencyDashboard": true
+  "dependencyDashboard": {
+    "enabled": true
+  }
 }
